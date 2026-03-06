@@ -10,7 +10,7 @@ description: Use when making UI/UX decisions, designing component structure, dis
 ## Core Principles
 
 - **Mobile-first** — design for small screens first, enhance for larger ones
-- **Accessible by default** — proper ARIA labels, keyboard navigation, focus management, sufficient color contrast
+- **Accessible by default** — proper ARIA labels, keyboard navigation, focus management, sufficient color contrast, make sure it conforms to WCAG 2.2 Standard
 - **Progressive disclosure** — show what the user needs now, not everything at once
 - **Ship less JavaScript** — prefer server rendering where possible; client-side only when necessary
 

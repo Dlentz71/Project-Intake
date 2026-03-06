@@ -40,6 +40,10 @@ Thumbs.db
 *.log
 logs/
 
+# Prisma
+prisma/dev.db
+prisma/dev.db-journal
+
 # Claude local overrides (personal, not team)
 CLAUDE.local.md
 .claude/settings.local.json

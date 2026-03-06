@@ -1,0 +1,104 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+// SQLite does not support Prisma enums — all enum-like fields use String.
+// TypeScript union types are defined in types/index.ts for compile-time safety.
+
+model User {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  role      String   // "REQUESTER" | "REVIEWER" | "DECISION_MAKER" | "ADMIN"
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  requesterRequests ProjectRequest[] @relation("RequesterRequests")
+  reviewerRequests  ProjectRequest[] @relation("ReviewerRequests")
+  comments          Comment[]
+  decisions         Decision[]
+  auditEvents       AuditEvent[]
+
+  @@map("user")
+}
+
+model ProjectRequest {
+  id                     Int       @id @default(autoincrement())
+  requestNumber          String    @unique
+  title                  String
+  description            String?
+  department             String
+  category               String
+  businessJustification  String
+  estimatedCost          Float?
+  targetStartDate        DateTime?
+  targetEndDate          DateTime?
+  priority               String?
+  impact                 String?
+  status                 String    @default("DRAFT") // Status union
+  requesterUserId        Int
+  assignedReviewerUserId Int?
+  submittedAt            DateTime?
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
+
+  requester        User         @relation("RequesterRequests", fields: [requesterUserId], references: [id])
+  assignedReviewer User?        @relation("ReviewerRequests", fields: [assignedReviewerUserId], references: [id])
+  comments         Comment[]
+  decision         Decision?
+  auditEvents      AuditEvent[]
+
+  @@map("project_request")
+}
+
+// Append-only — updatedAt omitted by design (immutable records).
+model Comment {
+  id               Int      @id @default(autoincrement())
+  projectRequestId Int
+  authorUserId     Int
+  body             String
+  type             String   @default("GENERAL") // "GENERAL" | "MORE_INFO_REQUEST" | "RESPONSE"
+  createdAt        DateTime @default(now())
+
+  projectRequest ProjectRequest @relation(fields: [projectRequestId], references: [id])
+  author         User           @relation(fields: [authorUserId], references: [id])
+
+  @@map("comment")
+}
+
+// Append-only — updatedAt omitted by design (immutable records).
+model Decision {
+  id               Int       @id @default(autoincrement())
+  projectRequestId Int       @unique
+  outcome          String    // "APPROVED" | "REJECTED" | "DEFERRED"
+  rationale        String
+  decidedByUserId  Int
+  decidedAt        DateTime  @default(now())
+  nextReviewDate   DateTime?
+
+  projectRequest ProjectRequest @relation(fields: [projectRequestId], references: [id])
+  decidedBy      User           @relation(fields: [decidedByUserId], references: [id])
+
+  @@map("decision")
+}
+
+// Append-only — updatedAt omitted by design (immutable records).
+model AuditEvent {
+  id               Int      @id @default(autoincrement())
+  projectRequestId Int
+  actorUserId      Int
+  eventType        String   // "CREATED" | "FIELD_CHANGED" | "STATUS_CHANGED" | "ASSIGNMENT_CHANGED" | "COMMENT_ADDED" | "DECISION_RECORDED"
+  fieldName        String?
+  oldValue         String?
+  newValue         String?
+  createdAt        DateTime @default(now())
+
+  projectRequest ProjectRequest @relation(fields: [projectRequestId], references: [id])
+  actor          User           @relation(fields: [actorUserId], references: [id])
+
+  @@map("audit_event")
+}

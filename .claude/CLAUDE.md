@@ -1,19 +1,18 @@
-# [Project Name]
+# Request Tracker
 
-[One sentence: what this project does and who it's for]
-
-> **New project?** Run `/choose-stack` to get a stack recommendation, then update this file.
-> Run `/gather-requirements` to start writing your first spec.
+An internal browser-based tool for tracking requests from creation through decision, including statuses, filters, audit trails, and decision tracking for small teams.
 
 ## Commands
 
 > Fill these in after your stack is chosen. Include only commands Claude would need to run.
 
 ```bash
-# [start]   # Start development / local server
-# [build]   # Production build
-# [test]    # Run test suite
-# [lint]    # Lint / format
+npm run dev       # Start development server (localhost:3000)
+npm run build     # Production build
+npm test          # Run test suite
+npm run lint      # Lint and format
+npx prisma migrate dev   # Run DB migrations after schema changes
+npx prisma studio        # Browse/edit database in browser
 ```
 
 ## Stack
@@ -21,26 +20,30 @@
 > Run `/choose-stack` to have Claude recommend the right stack for your project,
 > or fill this in manually after deciding.
 
-- **Language**: [e.g. TypeScript, Python, Go, Rust]
-- **Framework**: [e.g. Next.js, FastAPI, Express, Django, none]
-- **Database**: [e.g. PostgreSQL, SQLite, MongoDB, none]
-- **Auth**: [e.g. NextAuth, Clerk, custom JWT, none]
-- **Deployment**: [e.g. Vercel, Cloudflare Pages, Railway, AWS, Docker]
+- **Language**: TypeScript
+- **Framework**: Next.js 14 (App Router)
+- **Database**: SQLite via Prisma ORM
+- **Auth**: Simple local user selection — name stored in browser cookie (no passwords; local demo only)
+- **UI**: shadcn/ui + Tailwind CSS
+- **Deployment**: Local only (`npm run dev`)
 
 ## Architecture
 
 > Describe how the project is structured. Focus on things Claude can't infer from reading code.
 
-- [How routing or API structure is organized]
-- [Where core business logic lives]
-- [Any non-obvious patterns or conventions]
+- Next.js App Router: pages in `app/`, API routes in `app/api/`
+- Prisma schema in `prisma/schema.prisma`; run `npx prisma migrate dev` after any schema change
+- shadcn/ui components in `components/ui/`; custom components in `components/`
+- User identity is cookie-based (name only); no password or session table needed
 
 ## Important Gotchas
 
 > Things that have burned you before. Vague notes get ignored — be specific.
 
-- [e.g. "Always run X after changing the schema"]
-- [e.g. "Package Y requires Z to be installed globally"]
+- Always run `npx prisma migrate dev` after editing `prisma/schema.prisma` — the app will fail silently if the DB is out of sync
+- SQLite file is at `prisma/dev.db` — do not commit this file; it is gitignored
+- shadcn/ui components must be added via `npx shadcn-ui@latest add <component>`, not written by hand
+- Audit trail entries should be written server-side only — never trust client-supplied actor identity
 
 ## Required Engineering Standards
 
